@@ -14,7 +14,7 @@ The config file has 2 major things you can change.
 
 # Requirements
 - Nuclear Option via Steam
-- BepInEx (Installation detailed below)
+- BepInEx
 - Optional: Nuclear Option Mod Manager (NOMM)
 
 # Installation
