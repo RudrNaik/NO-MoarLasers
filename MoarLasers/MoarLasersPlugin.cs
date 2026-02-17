@@ -8,44 +8,69 @@ using UnityEngine;
 
 namespace MoreLasers
 {
+    public enum MultiplayerMode
+    {
+        MpDisabled,     // Mod disabled in all multiplayer (can join anyone) but accessible in singleplayer.
+        RestrictedMM    // Mod is enalbled in MP with others, however requires a version match.
+    }
+
     [BepInPlugin("com.Spiny.MoreLasers", "Moar Lasers", "1.0.0")]
     public class Plugin : BaseUnityPlugin
     {
-        internal static ManualLogSource Log;
-        internal static ConfigEntry<int> MaxTargetsConfig;
-        internal static ConfigEntry<bool> StrictMode;
+        internal static ManualLogSource Log;                    //Da loggeeeeer
+        internal static ConfigEntry<int> IncreasedTargets;      //Stores the number of targets to increase.
+        internal static ConfigEntry<MultiplayerMode> MpMode;    //Enum to store if in MpDisabled or RestrictedMM.
+
+        private static bool? _cachedIsMultiplayer = null;       //bool to check if we have checked for MP already in the scene we've loaded. Upon scene change, this is reset.
+        internal static bool _hasLoggedMpState = false;         //bool to check if we have a logged MP state. Mainly to communicate with the patcher.
 
         private void Awake()
         {
             Log = Logger;
 
-            MaxTargetsConfig = Config.Bind(
+            IncreasedTargets = Config.Bind(
                 "Laser Designator",
                 "Increased_Targets",
                 3,
-                "Number of additional targets (added to base game limit, so put it in as zero if you dont want to adjust this.)"
+                "Number of additional targets (added to base game limit, 0 = no change)"
             );
 
-            StrictMode = Config.Bind(
+            MpMode = Config.Bind(
                 "Multiplayer",
-                "Strict_Mode",
-                false,
-                "If true, only allow multiplayer with other modded players via version match. If false, disable mod when playing in multiplayer."
+                "MpConfig",
+                MultiplayerMode.MpDisabled,
+                "MpDisabled: Mod disabled in all multiplayer (can join anyone) but accessible in singleplayer. RestrictedMM: Mod is enalbled in MP with others, however requires a version match, and means both players need to have the mod."
             );
 
             Logger.LogInfo("Moar Lasers Loading.");
 
             Harmony harmony = new Harmony("com.Spiny.MoreLasers");
             harmony.PatchAll();
-            harmony.PatchAll();
 
             Logger.LogInfo("Moar Lasers loaded.");
         }
 
+        internal static void ResetMultiplayerCache()
+        {
+            _cachedIsMultiplayer = null;
+            _hasLoggedMpState = false;
+        }
+
         internal static bool IsMultiplayer()
         {
+            // If RestrictedMM mode, never consider it "multiplayer" as we have a different version entirely.
+            if (MpMode.Value == MultiplayerMode.RestrictedMM)
+            {
+                return false;
+            }
+
+            if (_cachedIsMultiplayer.HasValue) { 
+                return _cachedIsMultiplayer.Value;
+            }
+
             try
             {
+                // Check if hosting with players (playing with others)
                 Type serverType = AccessTools.TypeByName("Mirage.NetworkServer");
                 if (serverType != null)
                 {
@@ -70,7 +95,8 @@ namespace MoreLasers
                                     {
                                         if (collection.Count > 1)
                                         {
-                                            //Log.LogInfo("Hosting multiplayer with remote players");
+                                            // Hosting with remote players
+                                            _cachedIsMultiplayer = true;
                                             return true;
                                         }
                                     }
@@ -80,6 +106,7 @@ namespace MoreLasers
                     }
                 }
 
+                // Check if connected as client to remote server (playing with others).
                 Type clientType = AccessTools.TypeByName("Mirage.NetworkClient");
                 if (clientType != null)
                 {
@@ -103,7 +130,8 @@ namespace MoreLasers
 
                                     if (isLocalValue != null && !(bool)isLocalValue)
                                     {
-                                        //Log.LogInfo("Connected to remote server");
+                                        // Connected to remote server
+                                        _cachedIsMultiplayer = true;
                                         return true;
                                     }
                                 }
@@ -117,25 +145,27 @@ namespace MoreLasers
                 Log.LogWarning($"Error checking multiplayer state: {ex.Message}");
             }
 
+            // if all else is false, player is in singleplayer.
+            _cachedIsMultiplayer = false;
             return false;
         }
     }
 
-    // Only modify version if user wants to require all players have the mod
-    // Credit to Nikkorap for making the original version this is derivative of.
+    // Version modifier for restrictedMM. Credit to Nikkoraps for developing the original version this is based off of.
+    // Changes the version of the game so that you and others can play with the mod still active.
     [HarmonyPatch(typeof(Application), nameof(Application.version), MethodType.Getter)]
     internal static class VersionGetterPatch
     {
         static void Postfix(ref string __result)
         {
-            if (Plugin.StrictMode.Value)
+            if (Plugin.MpMode.Value == MultiplayerMode.RestrictedMM)
             {
                 __result += "_MoreLasers-v1.0.0";
-                Plugin.Log.LogInfo($"Game version modified to: {__result} (requires all players have mod)");
             }
         }
     }
 
+    //Patches in the laser designator.
     [HarmonyPatch(typeof(LaserDesignator), "Awake")]
     internal class LaserDesignatorAwakePatch
     {
@@ -143,16 +173,34 @@ namespace MoreLasers
         {
             if (Plugin.IsMultiplayer())
             {
-                Plugin.Log.LogInfo("Laser Mod Disabled due to MP with Vanilla.");
+                if (!Plugin._hasLoggedMpState)
+                {
+                    Plugin.Log.LogInfo($"In multiplayer with others, MoarLasers disabled. (mode: {Plugin.MpMode.Value})");
+                    Plugin._hasLoggedMpState = true;
+                }
                 return;
             }
 
             int originalMax = Traverse.Create(__instance).Field<int>("maxTargets").Value;
-            int newMax = Plugin.MaxTargetsConfig.Value + originalMax;
+            int newMax = Plugin.IncreasedTargets.Value + originalMax;
 
             Traverse.Create(__instance).Field("maxTargets").SetValue(newMax);
 
-            //Plugin.Log.LogInfo($"Laser targets increased: {originalMax} → {newMax}");
+            if (!Plugin._hasLoggedMpState)
+            {
+                Plugin.Log.LogInfo($"Laser targets increased by {Plugin.IncreasedTargets.Value} (mode: {Plugin.MpMode.Value})");
+                Plugin._hasLoggedMpState = true;
+            }
+        }
+    }
+
+    //When loading a new scene, reset the cache so we can make the first check and not spam the logs with 13 billion logs.
+    [HarmonyPatch(typeof(UnityEngine.SceneManagement.SceneManager), "Internal_SceneLoaded")]
+    internal static class SceneLoadPatch
+    {
+        static void Postfix()
+        {
+            Plugin.ResetMultiplayerCache();
         }
     }
 }
