@@ -17,7 +17,7 @@ namespace MoreLasers
     [BepInPlugin("com.Spiny.MoreLasers", "Moar Lasers", "1.0.0")]
     public class Plugin : BaseUnityPlugin
     {
-        internal static ManualLogSource Log;                    //Da loggeeeeer
+        internal static ManualLogSource Log;                    //Da loggerrrrrrrrrrrr
         internal static ConfigEntry<int> IncreasedTargets;      //Stores the number of targets to increase.
         internal static ConfigEntry<MultiplayerMode> MpMode;    //Enum to store if in MpDisabled or RestrictedMM.
 
