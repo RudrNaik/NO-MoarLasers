@@ -1,5 +1,0 @@
-C:\Users\rudra_5\Desktop\NoMods\TestMod\TestMod\obj\Debug\net8.0\TestMod.csproj.AssemblyReference.cache
-C:\Users\rudra_5\Desktop\NoMods\TestMod\TestMod\obj\Debug\net8.0\TestMod.GeneratedMSBuildEditorConfig.editorconfig
-C:\Users\rudra_5\Desktop\NoMods\TestMod\TestMod\obj\Debug\net8.0\TestMod.AssemblyInfoInputs.cache
-C:\Users\rudra_5\Desktop\NoMods\TestMod\TestMod\obj\Debug\net8.0\TestMod.AssemblyInfo.cs
-C:\Users\rudra_5\Desktop\NoMods\TestMod\TestMod\obj\Debug\net8.0\TestMod.csproj.CoreCompileInputs.cache

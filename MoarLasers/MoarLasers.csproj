@@ -26,7 +26,6 @@
 		<Copy SourceFiles="$(TargetPath)" DestinationFiles="$(BepInExPluginsDir)$(Product).dll" SkipUnchangedFiles="true" />
 	</Target>
 
-	<!-- Only need game-specific DLLs, not Unity ones -->
 	<ItemGroup>
 		<Reference Include="Assembly-CSharp">
 			<HintPath>D:\SteamLibrary\steamapps\common\Nuclear Option\NuclearOption_Data\Managed\Assembly-CSharp.dll</HintPath>
