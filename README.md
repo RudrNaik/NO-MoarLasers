@@ -11,3 +11,14 @@ The config file has 2 major things you can change.
 # Known Issues
 - I have not done a lot of testing for multiplayer- as such it may be finnicky with the Strict_Mode settings. I suggest leaving it at false.
 - This is my first mod ever, there is *probably* something thats gonna be broken. As such, DM me on discord (@Spinypine) with what's going on and ill investigate.
+
+# Requirements
+- Nuclear Option via Steam
+- BepInEx (Installation detailed below)
+- Optional: Nuclear Option Mod Manager (NOMM)
+
+# Installation
+1. Download BepInEx and have it set up in your Nuclear Option directory
+2. Download the .dll File and place it in the plugins folder
+3. Check the logs to see if it has loaded. 
+4. Lase Everything.
