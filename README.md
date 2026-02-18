@@ -1,6 +1,6 @@
 # Moar Lasers
 
-Are you tired of your Ifrit, Revoker, and Vortex all being unable to lase more than one target at a time? I sure am. This mod changes the amount of targets that an aircraft can laser designate at once. For example, a cricket can lase 2 targets in the base game. With the basic configuration- Moar Lasers allows you to laser designate 5 targets. You can change this value via the config variables listed below.
+This mod changes the amount of targets that an aircraft can laser designate at once. For example, a cricket can lase 2 targets in the base game. With the basic configuration- Moar Lasers allows you to laser designate 5 targets. You can change this value via the config variables listed below.
 
 > **Increased_Targets** | Determines the amount *more* of targets you can lase at a time. This is added onto the base amount. IE: If you set it to 3, planes like the Brawler can now lase 6 targets total.
 
