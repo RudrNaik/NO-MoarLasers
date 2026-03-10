@@ -151,7 +151,7 @@ namespace MpBlocker
         {
             if (MpBlocker.MpMode == MultiplayerMode.RestrictedMM)
             {
-                __result += "_GrowlerFrit-v1.0.0";
+                __result += "_MoarLasers-v1.0.0";
             }
         }
     }

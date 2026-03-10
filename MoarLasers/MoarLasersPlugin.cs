@@ -7,19 +7,13 @@ using System.Reflection;
 using UnityEngine;
 
 namespace MoreLasers
-{
-    public enum MultiplayerMode
-    {
-        MpDisabled,     // Mod disabled in all multiplayer (can join anyone) but accessible in singleplayer.
-        RestrictedMM    // Mod is enalbled in MP with others, however requires a version match.
-    }
-
+{ 
     [BepInPlugin("com.Spiny.MoreLasers", "Moar Lasers", "1.0.0")]
     public class Plugin : BaseUnityPlugin
     {
         internal static ManualLogSource Log;                    //Da loggerrrrrrrrrrrr
         internal static ConfigEntry<int> IncreasedTargets;      //Stores the number of targets to increase.
-        internal static ConfigEntry<MultiplayerMode> MpMode;    //Enum to store if in MpDisabled or RestrictedMM.
+        internal static ConfigEntry<MpBlocker.MultiplayerMode> MpMode;    //Enum to store if in MpDisabled or RestrictedMM.
 
         private static bool? _cachedIsMultiplayer = null;       //bool to check if we have checked for MP already in the scene we've loaded. Upon scene change, this is reset.
         internal static bool _hasLoggedMpState = false;         //bool to check if we have a logged MP state. Mainly to communicate with the patcher.
@@ -37,10 +31,13 @@ namespace MoreLasers
 
             MpMode = Config.Bind(
                 "Multiplayer",
-                "MpConfig",
-                MultiplayerMode.MpDisabled,
-                "MpDisabled: Mod disabled in all multiplayer (can join anyone) but accessible in singleplayer. RestrictedMM: Mod is enalbled in MP with others, however requires a version match, and means both players need to have the mod."
+                "MultiplayerMode",
+                MpBlocker.MultiplayerMode.MpDisabled,
+                "MpDisabled: mod only active in singleplayer. RestrictedMM: mod active in MP with version matching."
             );
+
+            MpBlocker.MpBlocker.SetEnum(MpMode.Value);
+            MpMode.SettingChanged += (sender, args) => MpBlocker.MpBlocker.SetEnum(MpMode.Value);
 
             Logger.LogInfo("Moar Lasers Loading.");
 
