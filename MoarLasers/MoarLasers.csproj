@@ -19,7 +19,7 @@
 
 	<!-- Auto-copy to game folder after build -->
 	<PropertyGroup>
-		<BepInExPluginsDir>D:\SteamLibrary\steamapps\common\Nuclear Option\BepInEx\plugins\</BepInExPluginsDir>
+		<BepInExPluginsDir>C:\Program Files (x86)\Steam\steamapps\common\Nuclear Option</BepInExPluginsDir>
 	</PropertyGroup>
 	<Target Name="CopyBepInExPlugin" AfterTargets="Build">
 		<MakeDir Directories="$(BepInExPluginsDir)" />
@@ -28,7 +28,7 @@
 
 	<ItemGroup>
 		<Reference Include="Assembly-CSharp">
-			<HintPath>D:\SteamLibrary\steamapps\common\Nuclear Option\NuclearOption_Data\Managed\Assembly-CSharp.dll</HintPath>
+			<HintPath>C:\Program Files (x86)\Steam\steamapps\common\Nuclear Option\NuclearOption_Data\Managed\Assembly-CSharp.dll</HintPath>
 			<Private>False</Private>
 		</Reference>
 	</ItemGroup>
